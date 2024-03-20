@@ -11,5 +11,27 @@ class CrudRepositary {
       throw {error};
     }
   }
+  async get() {
+    try {
+      const response = await this.model.findMany();
+      return response;
+    } catch (error) {
+      console.log("error", error);
+      throw {error};
+    }
+  }
+  async delete(userId) {
+    try {
+      const response = await this.model.delete({
+        where: {
+          id: userId,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.log("error", error);
+      throw {error};
+    }
+  }
 }
 export default CrudRepositary;
