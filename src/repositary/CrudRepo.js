@@ -11,7 +11,7 @@ class CrudRepositary {
       throw {error};
     }
   }
-  async get() {
+  async getAll() {
     try {
       const response = await this.model.findMany();
       return response;

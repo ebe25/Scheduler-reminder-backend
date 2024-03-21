@@ -26,5 +26,15 @@ async get (id){
       }
 
 }
+async getAll (){
+    try {
+        const newToDo = await this.repo.getAll();
+        return newToDo;
+      } catch (error) {
+        console.log("error", error);
+        throw {error};
+      }
+
+}
 }
 export default UserService;

@@ -36,3 +36,21 @@ export const get = async (req, res) => {
     });
   }
 };
+export const getAll = async (req, res) => {
+  try {
+    const response = await userService.getAll();
+    return res.status(200).send({
+      data: response,
+      message: "users  fetched Succesfully",
+      success: true,
+      err: {},
+    });
+  } catch (error) {
+    return res.status(500).send({
+      data: {},
+      message: "request failed",
+      success: false,
+      err: "Failed to fetch ",
+    });
+  }
+};
