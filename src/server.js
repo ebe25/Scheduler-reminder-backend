@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import ApiRoutes from "./routes/index.js";
 import {PORT} from "./config/serverConfig.js";
 import { createServer } from "http";
+import cors from "cors"
 
 
 dotenv.config();
@@ -22,6 +23,7 @@ async function setupAndStartServer() {
 
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
+  app.use(cors())
   app.use("/api", ApiRoutes);
   // app.use(express.static(path.resolve('src/public')))
   // app.get("/", (req,res)=>res.sendFile("/public/index.html"))

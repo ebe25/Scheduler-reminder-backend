@@ -5,7 +5,7 @@ export const create = async (req, res) => {
     const response = await userService.create(req.body);
     return res.status(200).send({
       data: response,
-      message: "To-Do created Succesfully",
+      message: "User created Succesfully",
       success: true,
       err: {},
     });
@@ -14,7 +14,7 @@ export const create = async (req, res) => {
       data: {},
       message: "request failed",
       success: false,
-      err: "Failed to create To-do",
+      err: "Failed to create user",
     });
   }
 };

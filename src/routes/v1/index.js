@@ -1,14 +1,12 @@
 import * as TodoController from "../../controllers/TodoController.js";
 import * as UserController from "../../controllers/UserController.js";
 import express from "express";
-import {createTodo} from "../../middlewares/todosValidator.js";
+import {todoValidation} from "../../middlewares/todosValidator.js";
+import {userValidation} from "../../middlewares/userValidator.js";
 const routes = express.Router();
-routes.post("/todo", createTodo, TodoController.create);
-routes.get("/todos", TodoController.get)
+routes.post("/todos", todoValidation, TodoController.create);
+routes.get("/todos", TodoController.getAll);
 
-
-
-routes.post("/user", UserController.create)
-routes.get("/users", UserController.getAll)
+routes.post("/users", userValidation, UserController.create);
+routes.get("/users", UserController.getAll);
 export default routes;
-

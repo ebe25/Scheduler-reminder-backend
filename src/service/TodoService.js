@@ -18,7 +18,17 @@ async create (data){
 }
 async get (id){
     try {
-        const newToDo = await this.repo.create(data);
+        const newToDo = await this.repo.get(id);
+        return newToDo;
+      } catch (error) {
+        console.log("error", error);
+        throw {error};
+      }
+
+}
+async getAll (){
+    try {
+        const newToDo = await this.repo.getAll();
         return newToDo;
       } catch (error) {
         console.log("error", error);
