@@ -3,7 +3,7 @@ import prisma from "../config/serverConfig.js";
 
 class UserRepositary extends CrudRepositary {
   constructor() {
-    super(prisma.todo);
+    super(prisma.user);
   }
 }
 export default UserRepositary;
