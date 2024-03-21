@@ -8,8 +8,8 @@ class UserService{
 
 async create (data){
     try {
-        const newToDo = await this.repo.create(data);
-        return newToDo;
+        const newUser = await this.repo.create(data);
+        return newUser;
       } catch (error) {
         console.log("error", error);
         throw {error};

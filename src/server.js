@@ -3,20 +3,19 @@ import dotenv from "dotenv";
 import ApiRoutes from "./routes/index.js";
 import {PORT} from "./config/serverConfig.js";
 import { createServer } from "http";
-import { Server } from "socket.io";
-import path from "path";
+
 
 dotenv.config();
 async function setupAndStartServer() {
   const app = express();
-  const server = createServer(app);
+  // const server = createServer(app);
 
 
-  const io = new Server(server);
-  io.on("connection", (socket) => {
-    console.log("ws server running, new connection established");
-  io.emit("msg",{abc:"can send objects as well"});
-  });
+  // const io = new Server(server);
+  // io.on("connection", (socket) => {
+  //   console.log("ws server running, new connection established");
+  // io.emit("msg",{abc:"can send objects as well"});
+  // });
 
 
 
@@ -24,11 +23,11 @@ async function setupAndStartServer() {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
   app.use("/api", ApiRoutes);
-  app.use(express.static(path.resolve('src/public')))
-  app.get("/", (req,res)=>res.sendFile("/public/index.html"))
+  // app.use(express.static(path.resolve('src/public')))
+  // app.get("/", (req,res)=>res.sendFile("/public/index.html"))
 
 
-  server.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log("Listening on port", PORT);
   });
 }

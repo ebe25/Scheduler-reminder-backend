@@ -1,8 +1,8 @@
-import UserService from "../service/TodoService.js";
+import UserService from "../service/UserService.js";
 const userService = new UserService();
 export const create = async (req, res) => {
   try {
-    const response = await todoService.create(req.body);
+    const response = await userService.create(req.body);
     return res.status(200).send({
       data: response,
       message: "To-Do created Succesfully",
@@ -20,7 +20,7 @@ export const create = async (req, res) => {
 };
 export const get = async (req, res) => {
   try {
-    const response = await todoService.get(id);
+    const response = await userService.get(id);
     return res.status(200).send({
       data: response,
       message: "user  fetched Succesfully",
