@@ -20,6 +20,7 @@ class CrudRepositary {
       throw {error};
     }
   }
+  
   async delete(userId) {
     try {
       const response = await this.model.delete({
