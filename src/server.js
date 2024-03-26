@@ -15,29 +15,18 @@ const createIfuserNotExists = async (data) => {
       where: {name: data.name, email: data.email},
       update: {isOnline: data.isOnline},
       create: {
+        socketId: data.socketId,
         name: data.name,
         email: data.email,
         picture: data.picture,
         isOnline: data.isOnline,
       },
     });
-    console.log("userscreatedifnotexits", user);
     return user;
   } catch (error) {
     console.log("User exists in the db with same name and email", error);
   }
 };
-
-// const createUser = async (data) => {
-//   try {
-//     const newUser = await prisma.user.create({
-//       data: data,
-//     });
-//     return newUser;
-//   } catch (error) {
-//     console.log("New user in Db creation error", error);
-//   }
-// };
 
 const listOfActiveUsers = async () => {
   try {
@@ -47,7 +36,19 @@ const listOfActiveUsers = async () => {
     console.log("error while returing a list of online users", error);
   }
 };
+const findBySocketIdandUpdateOnlineStatus = async (id) => {
+  try {
+    const user = await prisma.user.updateMany({
+      where: {socketId: id},
+      data: {isOnline: false},
+    });
+    return user;
+  } catch (error) {
+    console.log("error while finding user mapped to the given socketID", error);
+  }
+};
 
+const online_users = [];
 async function setupAndStartServer() {
   const app = express();
   const server = createServer(app);
@@ -58,24 +59,38 @@ async function setupAndStartServer() {
   });
 
   io.on("connection", async (socket) => {
-    console.log("user made a connectino ");
+    console.log("a socektclient made a connection", socket.id);
+    socket.on("userDetails", (data) => console.log(data));
     socket.on("login", (userData) => {
-      const onlineUserData = {...userData, isOnline: socket.connected};
+      const onlineUserData = {
+        ...userData,
+        isOnline: socket.connected,
+        socketId: socket.id,
+      };
       console.log("A user logged in:", onlineUserData);
-
       createIfuserNotExists(onlineUserData).then(() =>
-        listOfActiveUsers().then((activeUsers) => {
-          socket.emit("active_users", activeUsers);
-        })
+        {
+          online_users.push(onlineUserData.name);
+          io.emit("active_users", online_users);
+        }
       );
     });
 
     const onlineUsers = await listOfActiveUsers();
-    if (onlineUsers.length > 0) {
-      socket.emit("active_users", onlineUsers);
+    if (online_users.length > 0) {
+     
+      socket.emit("active_users", online_users);
     }
-    socket.on("disconnect", () => {
-      console.log("user disconnected");
+    socket.on("disconnect", async () => {
+      console.log("socketid dced", socket.id);
+      // online_users.pop()
+      io.emit("active_users", online_users);
+      
+      //findBySocketId()
+      //isonline=false;
+      // const updatedUSer = await findBySocketIdandUpdateOnlineStatus(socket.id);
+      // const user = await createIfuserNotExists({isOnline: false});
+      // console.log("ufpasdf", user);
     });
   });
 

@@ -15,6 +15,7 @@ datasource db {
 
 model User {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  socketId String  @unique 
   email    String  @unique
   name     String  @unique
   picture  String?
