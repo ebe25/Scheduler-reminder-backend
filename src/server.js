@@ -59,38 +59,21 @@ async function setupAndStartServer() {
   });
 
   io.on("connection", async (socket) => {
-    console.log("a socektclient made a connection", socket.id);
-    socket.on("userDetails", (data) => console.log(data));
     socket.on("login", (userData) => {
       const onlineUserData = {
         ...userData,
         isOnline: socket.connected,
         socketId: socket.id,
       };
-      console.log("A user logged in:", onlineUserData);
-      createIfuserNotExists(onlineUserData).then(() =>
-        {
-          online_users.push(onlineUserData.name);
-          io.emit("active_users", online_users);
-        }
-      );
+      createIfuserNotExists(onlineUserData).then(() => {
+        online_users.push(onlineUserData.name);
+        socket.broadcast.emit("active_users", online_users);
+      });
     });
 
-    const onlineUsers = await listOfActiveUsers();
-    if (online_users.length > 0) {
-     
-      socket.emit("active_users", online_users);
-    }
     socket.on("disconnect", async () => {
-      console.log("socketid dced", socket.id);
-      // online_users.pop()
-      io.emit("active_users", online_users);
-      
-      //findBySocketId()
-      //isonline=false;
-      // const updatedUSer = await findBySocketIdandUpdateOnlineStatus(socket.id);
-      // const user = await createIfuserNotExists({isOnline: false});
-      // console.log("ufpasdf", user);
+      online_users.pop();
+      socket.broadcast.emit("active_users", online_users);
     });
   });
 
