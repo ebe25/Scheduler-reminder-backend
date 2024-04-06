@@ -1,11 +1,9 @@
 import express, {urlencoded} from "express";
 import dotenv from "dotenv";
-import ApiRoutes from "./routes/index.js";
 import {PORT} from "./config/serverConfig.js";
 import {createServer} from "http";
 import {Server} from "socket.io";
 import cors from "cors";
-import UserRepositary from "./repositary/UserRepo.js";
 import prisma from "./config/serverConfig.js";
 dotenv.config();
 
@@ -59,28 +57,31 @@ async function setupAndStartServer() {
   });
 
   io.on("connection", async (socket) => {
+    console.log("conntec user", socket.id)
     socket.on("login", (userData) => {
       const onlineUserData = {
         ...userData,
         isOnline: socket.connected,
         socketId: socket.id,
       };
+      console.log("userDeatils", onlineUserData)
       createIfuserNotExists(onlineUserData).then(() => {
         online_users.push(onlineUserData.name);
         socket.broadcast.emit("active_users", online_users);
       });
     });
 
-    socket.on("disconnect", async () => {
+    socket.on("disconnect", async (data) => {
+      console.log("dcecddd", data);
       online_users.pop();
-      socket.broadcast.emit("active_users", online_users);
+      io.emit("active_users", online_users);
     });
   });
 
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
   app.use(cors());
-  app.use("/api", ApiRoutes);
+  // app.use("/api", ApiRoutes);
 
   server.listen(PORT, () => {
     console.log("Listening on port", PORT);
