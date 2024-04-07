@@ -20,7 +20,7 @@ export const create = async (req, res) => {
 };
 export const get = async (req, res) => {
   try {
-    const response = await userService.get(id);
+    const response = await userService.get(req.body.userEmail);
     return res.status(200).send({
       data: response,
       message: "user  fetched Succesfully",

@@ -80,15 +80,14 @@ async function setupAndStartServer() {
     // Event handler for user disconnect
     socket.on("disconnect", async () => {
       console.log("disconnected user", socket.id);
-      // Find the disconnected user and mark them as offline
-      const disconnectedUserIndex = online_users.findIndex(
-        (user) => user.socketId === socket.id
-      );
-      if (disconnectedUserIndex !== -1) {
-        online_users[disconnectedUserIndex].isOnline = false; // User is offline
-        online_users.splice(disconnectedUserIndex, 1); // Remove the user from the online users list
-        io.emit("active_users", online_users);
-      }
+      online_users.pop()
+      io.emit("active_users", online_users);
+      // if (disconnectedUserIndex !== -1) {
+      //   online_users[disconnectedUserIndex].isOnline = false; // User is offline
+      //   online_users.splice(disconnectedUserIndex, 1); // Remove the user from the online users list
+      //   console.log("onlineusers ", online_users)
+      //   io.emit("active_users", online_users);
+      // }
     });
   });
 

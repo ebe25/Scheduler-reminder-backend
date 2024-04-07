@@ -34,5 +34,32 @@ class CrudRepositary {
       throw {error};
     }
   }
+  async get(userEmail) {
+    try {
+      const response = await this.model.findUnique({
+        where: {
+          email: userEmail,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.log("error", error);
+      throw {error};
+    }
+  }
+
+  // async createUserTodos ({label}){
+  //   try {
+  //     const response = await this.model.create({
+  //       todos: {
+  //         id: userId,
+  //       },
+  //     });
+  //     return response;
+  //   } catch (error) {
+  //     console.log("error", error);
+  //     throw {error};
+  //   }
+  // }
 }
 export default CrudRepositary;

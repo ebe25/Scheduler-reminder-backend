@@ -16,9 +16,9 @@ async create (data){
       }
 
 }
-async get (id){
+async get (userEmail){
     try {
-        const newToDo = await this.repo.get(id);
+        const newToDo = await this.repo.get(userEmail);
         return newToDo;
       } catch (error) {
         console.log("error", error);

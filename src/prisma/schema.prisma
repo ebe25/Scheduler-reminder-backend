@@ -14,21 +14,21 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  socketId String  @unique
-  email    String  @unique
-  name     String  @unique
-  picture  String?
-  isOnline Boolean @default(false)
-  todos    Todo[]
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  socketId  String   @unique
+  email     String   @unique
+  name      String   @unique
+  picture   String?
+  isOnline  Boolean  @default(false)
+  todos     String[]
+  createdAt DateTime @default(now())
+  editedAt  DateTime @updatedAt()
 }
 
-model Todo {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  label    String[]
-  time     DateTime? @default(now())
-  createAt DateTime  @default(now())
-  editedAt DateTime  @updatedAt()
-  author   User?     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId String?   @db.ObjectId
-}
+// model Todo {
+//   id        String    @id @default(auto()) @map("_id") @db.ObjectId
+//   todos     String[]
+//   time      DateTime? @default(now())
+//   createdAt DateTime  @default(now())
+//   editedAt  DateTime  @updatedAt()
+// }
