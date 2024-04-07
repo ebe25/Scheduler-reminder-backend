@@ -5,6 +5,7 @@ import {createServer} from "http";
 import {Server} from "socket.io";
 import cors from "cors";
 import prisma from "./config/serverConfig.js";
+import ApiRoutes from "./routes/index.js";
 dotenv.config();
 
 const createIfuserNotExists = async (data) => {
@@ -57,31 +58,44 @@ async function setupAndStartServer() {
   });
 
   io.on("connection", async (socket) => {
-    console.log("conntec user", socket.id)
+    // Emit initial active users list when a new user connects
+    if (online_users.length > 0) {
+      io.emit("active_users", online_users);
+    }
+
+    // Event handler for user login
     socket.on("login", (userData) => {
       const onlineUserData = {
         ...userData,
-        isOnline: socket.connected,
+        isOnline: true, // User is online when logging in
         socketId: socket.id,
       };
-      console.log("userDeatils", onlineUserData)
+      // Add the user to the online users list
       createIfuserNotExists(onlineUserData).then(() => {
-        online_users.push(onlineUserData.name);
+        online_users.push(onlineUserData);
         socket.broadcast.emit("active_users", online_users);
       });
     });
 
-    socket.on("disconnect", async (data) => {
-      console.log("dcecddd", data);
-      online_users.pop();
-      io.emit("active_users", online_users);
+    // Event handler for user disconnect
+    socket.on("disconnect", async () => {
+      console.log("disconnected user", socket.id);
+      // Find the disconnected user and mark them as offline
+      const disconnectedUserIndex = online_users.findIndex(
+        (user) => user.socketId === socket.id
+      );
+      if (disconnectedUserIndex !== -1) {
+        online_users[disconnectedUserIndex].isOnline = false; // User is offline
+        online_users.splice(disconnectedUserIndex, 1); // Remove the user from the online users list
+        io.emit("active_users", online_users);
+      }
     });
   });
 
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
   app.use(cors());
-  // app.use("/api", ApiRoutes);
+  app.use("/api", ApiRoutes);
 
   server.listen(PORT, () => {
     console.log("Listening on port", PORT);
