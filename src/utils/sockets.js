@@ -57,7 +57,8 @@ export async function createIfuserNotExists(data) {
           name: data.name,
           email: data.email,
           picture: data.picture,
-          socketId: data.socketId,
+          todos: [],
+          editedAt: new Date(),
         },
       });
       return user;
