@@ -4,50 +4,15 @@ import {PORT} from "./config/serverConfig.js";
 import {createServer} from "http";
 import {Server} from "socket.io";
 import cors from "cors";
-import prisma from "./config/serverConfig.js";
 import ApiRoutes from "./routes/index.js";
+import {
+  createIfuserNotExists,
+  findBySocketId,
+  getOnlineUsers,
+  toggleUserOnlineStatus,
+} from "./utils/sockets.js";
 dotenv.config();
 
-const createIfuserNotExists = async (data) => {
-  try {
-    const user = await prisma.user.upsert({
-      where: {name: data.name, email: data.email},
-      update: {isOnline: data.isOnline},
-      create: {
-        socketId: data.socketId,
-        name: data.name,
-        email: data.email,
-        picture: data.picture,
-        isOnline: data.isOnline,
-      },
-    });
-    return user;
-  } catch (error) {
-    console.log("User exists in the db with same name and email", error);
-  }
-};
-
-const listOfActiveUsers = async () => {
-  try {
-    const users = await prisma.user.findMany({where: {isOnline: true}});
-    return users;
-  } catch (error) {
-    console.log("error while returing a list of online users", error);
-  }
-};
-const findBySocketIdandUpdateOnlineStatus = async (id) => {
-  try {
-    const user = await prisma.user.updateMany({
-      where: {socketId: id},
-      data: {isOnline: false},
-    });
-    return user;
-  } catch (error) {
-    console.log("error while finding user mapped to the given socketID", error);
-  }
-};
-
-const online_users = [];
 async function setupAndStartServer() {
   const app = express();
   const server = createServer(app);
@@ -56,38 +21,62 @@ async function setupAndStartServer() {
       origin: "*",
     },
   });
-
   io.on("connection", async (socket) => {
-    // Emit initial active users list when a new user connects
-    if (online_users.length > 0) {
-      io.emit("active_users", online_users);
-    }
-
-    // Event handler for user login
-    socket.on("login", (userData) => {
-      const onlineUserData = {
-        ...userData,
-        isOnline: true, // User is online when logging in
-        socketId: socket.id,
-      };
-      // Add the user to the online users list
-      createIfuserNotExists(onlineUserData).then(() => {
-        online_users.push(onlineUserData);
-        socket.broadcast.emit("active_users", online_users);
-      });
+    console.log("user connected with ", socket.id);
+    const users = await getOnlineUsers();
+    io.emit("active_users", users);
+    socket.on("connection_made", async (user) => {
+      try {
+        console.log("connection-made", user);
+        setTimeout(async () => {
+          await toggleUserOnlineStatus(user.email, true);
+          const users = await getOnlineUsers();
+          io.emit("active_users", users);
+        }, 1000);
+      } catch (error) {
+        console.log(
+          "Erorr while toggling user status connection-made event",
+          error
+        );
+        throw new Error(
+          "Erorr while toggling user status connection-made event"
+        );
+      }
+    });
+    socket.on("login_completed", async (user) => {
+      try {
+        const userData = {...user, socketId: socket.id};
+        const newUser = await createIfuserNotExists(userData);
+        if (newUser) {
+          await toggleUserOnlineStatus(newUser.email, true);
+        } else {
+          await toggleUserOnlineStatus(user.email, true);
+        }
+        const users = await getOnlineUsers();
+        socket.emit("active_users", users);
+      } catch (error) {
+        console.log("ERror while login_completed status update", error);
+      }
     });
 
-    // Event handler for user disconnect
-    socket.on("disconnect", async () => {
-      console.log("disconnected user", socket.id);
-      online_users.pop()
-      io.emit("active_users", online_users);
-      // if (disconnectedUserIndex !== -1) {
-      //   online_users[disconnectedUserIndex].isOnline = false; // User is offline
-      //   online_users.splice(disconnectedUserIndex, 1); // Remove the user from the online users list
-      //   console.log("onlineusers ", online_users)
-      //   io.emit("active_users", online_users);
-      // }
+    socket.on("logout_triggered", async (user) => {
+      try {
+        await toggleUserOnlineStatus(user.email, false);
+        const users = await getOnlineUsers();
+        io.emit("active_users", users);
+      } catch (error) {
+        console.log("Error while logout_triggere status update", error);
+      }
+    });
+
+    socket.on("custom_dc", async (user) => {
+      if (user !== null) {
+        setTimeout(async () => {
+          await toggleUserOnlineStatus(user.email, false);
+          const users = await getOnlineUsers();
+          io.emit("active_users", users);
+        }, 1000);
+      }
     });
   });
 
