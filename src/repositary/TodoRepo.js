@@ -1,4 +1,3 @@
-import CrudRepositary from "./CrudRepo.js";
 import prisma from "../config/serverConfig.js";
 
 class TodoRepositary {
