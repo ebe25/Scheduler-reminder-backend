@@ -1,4 +1,4 @@
-import TodoRepositary from "../repositary/ToDoRepo.js";
+import TodoRepositary from "../repositary/TodoRepo.js";
 
 
 class TodoService {
