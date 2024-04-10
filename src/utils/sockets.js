@@ -67,3 +67,18 @@ export async function createIfuserNotExists(data) {
     throw new Error("Error while creating user", error);
   }
 }
+
+export async function getUserTodoByindex(data) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: data.user.email,
+      },
+    });
+    const userTodo = user.todos[data.todoIdx];
+    return {userTodo, user};
+  } catch (error) {
+    console.log("Error", error);
+    throw new Error("Error while getUserTodoByindex", error);
+  }
+}

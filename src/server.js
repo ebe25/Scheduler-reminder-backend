@@ -9,6 +9,7 @@ import {
   createIfuserNotExists,
   findBySocketId,
   getOnlineUsers,
+  getUserTodoByindex,
   toggleUserOnlineStatus,
 } from "./utils/sockets.js";
 dotenv.config();
@@ -67,6 +68,13 @@ async function setupAndStartServer() {
       } catch (error) {
         console.log("Error while logout_triggere status update", error);
       }
+    });
+
+    socket.on("task_completed", async (data) => {
+      console.log("todoIsx", data);
+      //get the todo later
+      const {userTodo, user} = await getUserTodoByindex(data);
+      socket.broadcast.emit("notify", {label: userTodo, user: user});
     });
 
     socket.on("custom_dc", async (user) => {
