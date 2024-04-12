@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "./install.sh && npm i && cd src/ && npx prisma generate",
+    "build": "./install-docker.bat && npm i && cd src/ && npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/server.js",
     "deploy": "docker compose up -d && node src/server.js"
