@@ -9,26 +9,33 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String   @unique
-  socketId  String   @unique
-  picture   String?
+  picture   String
   isOnline  Boolean  @default(false)
-  todos     String[]
+  todos     Todo[]
   createdAt DateTime @default(now())
   editedAt  DateTime @updatedAt()
 }
 
-// model Todo {
-//   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-//   todos     String[]
-//   time      DateTime? @default(now())
-//   createdAt DateTime  @default(now())
-//   editedAt  DateTime  @updatedAt()
-// }
+model Todo {
+  id        Int      @id @default(autoincrement())
+  title     String
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now())
+  editedAt  DateTime @updatedAt()
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Status {
+  PENDING
+  WIP
+  COMPLETED
+}

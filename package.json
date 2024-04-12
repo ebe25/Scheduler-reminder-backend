@@ -5,14 +5,19 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "npm i && cd src/ && npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/server.js", 
-    "build": "npm i"
+    "start": "nodemon src/server.js",
+    "deploy": "npm i && docker compose up -d && cd src/ && npx prisma generate && node src/server.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ngneat/falso": "^7.2.0",
     "@prisma/client": "^5.11.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

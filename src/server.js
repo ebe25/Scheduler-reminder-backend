@@ -9,7 +9,7 @@ import {
   createIfuserNotExists,
   findBySocketId,
   getOnlineUsers,
-  getUserTodoByindex,
+  markTodoCompleted,
   toggleUserOnlineStatus,
 } from "./utils/sockets.js";
 dotenv.config();
@@ -29,11 +29,14 @@ async function setupAndStartServer() {
     socket.on("connection_made", async (user) => {
       try {
         console.log("connection-made", user);
-        setTimeout(async () => {
-          await toggleUserOnlineStatus(user.email, true);
-          const users = await getOnlineUsers();
-          io.emit("active_users", users);
-        }, 1000);
+        // const userFound = await getUser(user);
+        // if (userFound) {
+        //   setTimeout(async () => {
+        //     await toggleUserOnlineStatus(user.email, true);
+        //     const users = await getOnlineUsers();
+        //     io.emit("active_users", users);
+        //   }, 1000);
+        // }
       } catch (error) {
         console.log(
           "Erorr while toggling user status connection-made event",
@@ -45,8 +48,9 @@ async function setupAndStartServer() {
       }
     });
     socket.on("login_completed", async (user) => {
+      console.log("---here");
       try {
-        const userData = {...user, socketId: socket.id};
+        const userData = {...user};
         const newUser = await createIfuserNotExists(userData);
         if (newUser) {
           await toggleUserOnlineStatus(newUser.email, true);
@@ -71,10 +75,11 @@ async function setupAndStartServer() {
     });
 
     socket.on("task_completed", async (data) => {
-      console.log("todoIsx", data);
-      //get the todo later
-      const {userTodo, user} = await getUserTodoByindex(data);
-      socket.broadcast.emit("notify", {label: userTodo, user: user});
+      console.log("task_completed data", data);
+      
+      // //update the usertodo to be completed
+     const {response,userFromDb}=  await markTodoCompleted(data);
+      io.emit("notify", {label: response.title, username:userFromDb.name});
     });
 
     socket.on("custom_dc", async (user) => {

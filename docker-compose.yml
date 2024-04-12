@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: scheduler-db
+      POSTGRES_USER: vdnh123
+      POSTGRES_PASSWORD: abc123456
+    ports:
+     - 5432:5432

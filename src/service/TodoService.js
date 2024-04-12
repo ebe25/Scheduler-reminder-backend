@@ -1,6 +1,5 @@
 import TodoRepositary from "../repositary/TodoRepo.js";
 
-
 class TodoService {
   constructor() {
     this.repo = new TodoRepositary();
@@ -8,7 +7,13 @@ class TodoService {
 
   async create(data) {
     try {
-      const newToDo = await this.repo.create(data);
+      const transFormedtodos = data.todos.map((todo) => ({
+        title: todo,
+      }));
+      const newToDo = await this.repo.create({
+        ...data,
+        todos: transFormedtodos,
+      });
       return newToDo;
     } catch (error) {
       console.log("error", error);

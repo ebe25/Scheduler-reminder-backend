@@ -57,7 +57,7 @@ export async function createIfuserNotExists(data) {
           name: data.name,
           email: data.email,
           picture: data.picture,
-          socketId: data.socketId,
+          editedAt: new Date(),
         },
       });
       return user;
@@ -68,17 +68,59 @@ export async function createIfuserNotExists(data) {
   }
 }
 
-export async function getUserTodoByindex(data) {
+// export async function getUserTodoByindex(data) {
+//   console.log("--askljdfhjklashdf-----",data.user.email)
+//   try {
+//     const user = await prisma.user.findUnique({
+//       where: {
+//         email: data.user.email,
+//       },
+//       include:{
+//         todos
+//       }
+//     });
+//     console.log("dbusertoodsogetUserTOdo", user)
+//     return {userTodo, user};
+//   } catch (error) {
+//     console.log("Error", error);
+//     throw new Error("Error while getUserTodoByindex", error);
+//   }
+// }
+
+//have to create a todos table and realate them
+export async function markTodoCompleted(data) {
+  try {
+    const userFromDb = await getUserWithTodos(data.user);
+    const todoToUpdate = userFromDb.todos[data.index]; // Get the todo to update
+    console.log("---updtodo", todoToUpdate);
+    const response = await prisma.todo.update({
+      where: {
+        id: todoToUpdate.id,
+      },
+      data: {
+        status: "COMPLETED",
+      },
+    });
+    return {response, userFromDb};
+  } catch (error) {
+    console.log("Error", error);
+    throw new Error("Error while markTodoCompleted", error);
+  }
+}
+
+export async function getUserWithTodos(data) {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        email: data.user.email,
+        email: data.email,
+      },
+      include: {
+        todos: true,
       },
     });
-    const userTodo = user.todos[data.todoIdx];
-    return {userTodo, user};
+    return user;
   } catch (error) {
     console.log("Error", error);
-    throw new Error("Error while getUserTodoByindex", error);
+    throw new Error("Error while user", error);
   }
 }

@@ -13,14 +13,18 @@ class CrudRepositary {
   }
   async getAll() {
     try {
-      const response = await this.model.findMany();
+      const response = await this.model.findMany({
+        include: {
+          todos: true,
+        },
+      });
       return response;
     } catch (error) {
       console.log("error", error);
       throw {error};
     }
   }
-  
+
   async delete(userId) {
     try {
       const response = await this.model.delete({
