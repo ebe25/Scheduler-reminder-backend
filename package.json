@@ -8,7 +8,7 @@
     "build": "npm i && cd src/ && npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/server.js",
-    "deploy": "npm i && docker compose up -d && cd src/ && npx prisma generate && node src/server.js"
+    "deploy": "docker compose up -d && cd src/ && npx prisma generate && node src/server.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
