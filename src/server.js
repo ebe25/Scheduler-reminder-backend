@@ -24,18 +24,32 @@ async function setupAndStartServer() {
   });
   io.on("connection", async (socket) => {
     console.log("user connected with ", socket.id);
-    const users = await getOnlineUsers();
-    io.emit("active_users", users);
+    // const users = await getOnlineUsers();
+    // io.emit("active_users", users);
     socket.on("connection_made", async (user) => {
+      console.log("------conection made event-----");
       try {
         console.log("connection-made", user);
+        const userData = {...user};
+        const newUser = await createIfuserNotExists(userData);
+        if (newUser) {
+          await toggleUserOnlineStatus(newUser.email, true);
+        } else {
+          await toggleUserOnlineStatus(user.email, true);
+        }
+        const users = await getOnlineUsers();
+        io.emit("active_users", users)
+        // if (userData) {
+        //   setTimeout(async () => {
+        //     await toggleUserOnlineStatus(userData.email, true);
+        //     const users = await getOnlineUsers();
+        //     socket.broadcast.emit("active_users", users);
+        //   }, 300);
+        // }
+
         // const userFound = await getUser(user);
         // if (userFound) {
-        //   setTimeout(async () => {
-        //     await toggleUserOnlineStatus(user.email, true);
-        //     const users = await getOnlineUsers();
-        //     io.emit("active_users", users);
-        //   }, 1000);
+
         // }
       } catch (error) {
         console.log(
@@ -58,7 +72,7 @@ async function setupAndStartServer() {
           await toggleUserOnlineStatus(user.email, true);
         }
         const users = await getOnlineUsers();
-        socket.emit("active_users", users);
+        socket.broadcast.emit("active_users", users);
       } catch (error) {
         console.log("ERror while login_completed status update", error);
       }
@@ -76,10 +90,10 @@ async function setupAndStartServer() {
 
     socket.on("task_completed", async (data) => {
       console.log("task_completed data", data);
-      
+
       // //update the usertodo to be completed
-     const {response,userFromDb}=  await markTodoCompleted(data);
-      io.emit("notify", {label: response.title, username:userFromDb.name});
+      const {response, userFromDb} = await markTodoCompleted(data);
+      io.emit("notify", {label: response.title, username: userFromDb.name});
     });
 
     socket.on("custom_dc", async (user) => {
@@ -88,7 +102,7 @@ async function setupAndStartServer() {
           await toggleUserOnlineStatus(user.email, false);
           const users = await getOnlineUsers();
           io.emit("active_users", users);
-        }, 1000);
+        }, 500);
       }
     });
   });
