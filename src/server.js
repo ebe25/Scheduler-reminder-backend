@@ -24,33 +24,20 @@ async function setupAndStartServer() {
   });
   io.on("connection", async (socket) => {
     console.log("user connected with ", socket.id);
-    // const users = await getOnlineUsers();
-    // io.emit("active_users", users);
+    const users = await getOnlineUsers();
+    io.emit("active_users", users);
     socket.on("connection_made", async (user) => {
       console.log("------conection made event-----");
       try {
         console.log("connection-made", user);
-        const userData = {...user};
-        const newUser = await createIfuserNotExists(userData);
-        if (newUser) {
-          await toggleUserOnlineStatus(newUser.email, true);
-        } else {
-          await toggleUserOnlineStatus(user.email, true);
+        if (user !== null) {
+          setTimeout(async () => {
+            await toggleUserOnlineStatus(user.email, false);
+            const users = await getOnlineUsers();
+            io.emit("active_users", users);
+          }, 1000);
         }
-        const users = await getOnlineUsers();
-        io.emit("active_users", users)
-        // if (userData) {
-        //   setTimeout(async () => {
-        //     await toggleUserOnlineStatus(userData.email, true);
-        //     const users = await getOnlineUsers();
-        //     socket.broadcast.emit("active_users", users);
-        //   }, 300);
-        // }
-
-        // const userFound = await getUser(user);
-        // if (userFound) {
-
-        // }
+       
       } catch (error) {
         console.log(
           "Erorr while toggling user status connection-made event",
@@ -72,7 +59,7 @@ async function setupAndStartServer() {
           await toggleUserOnlineStatus(user.email, true);
         }
         const users = await getOnlineUsers();
-        socket.broadcast.emit("active_users", users);
+        io.emit("active_users", users);
       } catch (error) {
         console.log("ERror while login_completed status update", error);
       }
@@ -102,7 +89,7 @@ async function setupAndStartServer() {
           await toggleUserOnlineStatus(user.email, false);
           const users = await getOnlineUsers();
           io.emit("active_users", users);
-        }, 500);
+        }, 1000);
       }
     });
   });
