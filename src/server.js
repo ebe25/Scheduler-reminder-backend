@@ -32,7 +32,7 @@ async function setupAndStartServer() {
         console.log("connection-made", user);
         if (user !== null) {
           setTimeout(async () => {
-            await toggleUserOnlineStatus(user.email, false);
+            await toggleUserOnlineStatus(user.email, true);
             const users = await getOnlineUsers();
             io.emit("active_users", users);
           }, 1000);
@@ -55,11 +55,14 @@ async function setupAndStartServer() {
         const newUser = await createIfuserNotExists(userData);
         if (newUser) {
           await toggleUserOnlineStatus(newUser.email, true);
+          const users = await getOnlineUsers();
+          socket.broadcast.emit("active_users", users);
         } else {
           await toggleUserOnlineStatus(user.email, true);
+          const users = await getOnlineUsers();
+          socket.broadcast.emit("active_users", users);
         }
-        const users = await getOnlineUsers();
-        io.emit("active_users", users);
+       
       } catch (error) {
         console.log("ERror while login_completed status update", error);
       }
@@ -84,6 +87,7 @@ async function setupAndStartServer() {
     });
 
     socket.on("custom_dc", async (user) => {
+      console.log("user dced custom reload case")
       if (user !== null) {
         setTimeout(async () => {
           await toggleUserOnlineStatus(user.email, false);
