@@ -24,8 +24,8 @@ async function setupAndStartServer() {
   });
   io.on("connection", async (socket) => {
     console.log("user connected with ", socket.id);
-    const users = await getOnlineUsers();
-    io.emit("active_users", users);
+    // const users = await getOnlineUsers();
+    // io.emit("active_users", users);
     socket.on("connection_made", async (user) => {
       console.log("------conection made event-----");
       try {
