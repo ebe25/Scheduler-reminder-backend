@@ -24,8 +24,8 @@ async function setupAndStartServer() {
   });
   io.on("connection", async (socket) => {
     console.log("user connected with ", socket.id);
-    // const users = await getOnlineUsers();
-    // io.emit("active_users", users);
+    const users = await getOnlineUsers();
+    io.emit("active_users", users);
     socket.on("connection_made", async (user) => {
       console.log("------conection made event-----");
       try {
@@ -55,13 +55,11 @@ async function setupAndStartServer() {
         const newUser = await createIfuserNotExists(userData);
         if (newUser) {
           await toggleUserOnlineStatus(newUser.email, true);
-          const users = await getOnlineUsers();
-          socket.broadcast.emit("active_users", users);
         } else {
           await toggleUserOnlineStatus(user.email, true);
-          const users = await getOnlineUsers();
-          socket.broadcast.emit("active_users", users);
         }
+        const users = await getOnlineUsers();
+        socket.broadcast.emit("active_users", users);
        
       } catch (error) {
         console.log("ERror while login_completed status update", error);
